@@ -1,15 +1,11 @@
 package searchengine.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import searchengine.dto.indexing.IndexErrorResponse;
 import searchengine.dto.indexing.IndexResponse;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.model.WebSiteRepository;
 import searchengine.services.IndexService;
 import searchengine.services.StatisticsService;
 
