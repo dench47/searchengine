@@ -26,3 +26,6 @@ indexing-settings:
       name: Skillbox
     - url: https://www.playback.ru
       name: PlayBack.Ru
+
+parser-settings:
+  user-agent: Chrome/176.59.9.133

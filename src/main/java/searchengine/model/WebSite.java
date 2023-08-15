@@ -1,7 +1,11 @@
 package searchengine.model;
 
+import org.springframework.stereotype.Component;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+
 
 @Entity
 @Table(name = "site")
@@ -26,6 +30,7 @@ public class WebSite {
 
     @Column(columnDefinition = "VARCHAR(255)", nullable = false)
     String name;
+
 
     public int getId() {
         return id;
