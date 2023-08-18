@@ -21,7 +21,7 @@ public class Page {
     @Column(nullable = false, name = "code")
     int responseCode;
 
-    @Column(columnDefinition = "MEDIUMTEXT", nullable = true)
+    @Column(columnDefinition = "MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci", nullable = true)
     String content;
 
     public int getId() {

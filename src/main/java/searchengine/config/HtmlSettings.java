@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 public class HtmlSettings {
     private String userAgent;
+    private String referrer;
 
 
 }

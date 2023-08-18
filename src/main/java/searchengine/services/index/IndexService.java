@@ -1,4 +1,4 @@
-package searchengine.services;
+package searchengine.services.index;
 
 import searchengine.dto.indexing.IndexResponse;
 

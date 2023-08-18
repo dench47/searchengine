@@ -1,16 +1,12 @@
-package searchengine.services;
+package searchengine.services.index;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import searchengine.config.HtmlSettings;
 import searchengine.model.Page;
 import searchengine.model.WebSite;
 import searchengine.repositories.PageRepository;
-import searchengine.repositories.WebSiteRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,45 +16,38 @@ import java.util.concurrent.RecursiveAction;
 import static java.lang.Thread.sleep;
 
 public class HtmlParser extends RecursiveAction {
-    private final HtmlSettings components;
-    protected final WebSiteRepository webSiteRepository;
-    protected final PageRepository pageRepository;
-    protected final WebSite newPage;
-    private List<WebSite> pages = new ArrayList<>();
+    private final String userAgent = IndexServiceImpl.components.getUserAgent();
+    private final String referrer = IndexServiceImpl.components.getReferrer();
+    private final PageRepository pageRepository = IndexServiceImpl.pageRepository;
+    private final WebSite site;
+    private final List<WebSite> pages = new ArrayList<>();
 
-    @Autowired
-    public HtmlParser(HtmlSettings components, WebSiteRepository webSiteRepository, PageRepository pageRepository, WebSite newPage) {
-        this.components = components;
-        this.webSiteRepository = webSiteRepository;
-        this.pageRepository = pageRepository;
-        this.newPage = newPage;
+    public HtmlParser(WebSite site) {
+        this.site = site;
     }
-
 
     @Override
     public void compute() {
         List<HtmlParser> tasks = new ArrayList<>();
-        String url = newPage.getUrl();
+        String url = site.getUrl();
         String path;
-        String userAgent = "Chrome/176.59.9.133";
+        String content;
         try {
             sleep(150);
-            Document document = Jsoup.connect(url).userAgent(components.getUserAgent()).get();
-            String content = document.html();
+            Document document = Jsoup.connect(url).userAgent(userAgent).referrer(referrer).ignoreHttpErrors(true).get();
             Elements elements = document.select("body").select("a");
             for (Element element : elements) {
                 if (element.attr("href").startsWith("/") && !element.attr("href").endsWith("jpg")) {
                     url = element.attr("abs:href");
                     path = element.attr("href");
-                    if (isNotVisited(newPage.getId(), path)) {
-                        Page page = new Page();
-                        page.setSite(newPage);
-                        page.setPath(path);
-                        page.setResponseCode(200);
-                        pageRepository.save(page);
+                    IndexServiceImpl.webSiteRepository.changeStatusTime(site.getId());
+                    if (isNotVisited(site.getId(), path)) {
+                        Document document1 = Jsoup.connect(url).userAgent(userAgent).referrer(referrer).ignoreHttpErrors(true).get();
+                        content = document1.html();
+                        createOnePage(content, path, site, 200);
                         WebSite newSite = new WebSite();
                         newSite.setUrl(url);
-                        newSite.setId(newPage.getId());
+                        newSite.setId(site.getId());
                         pages.add(newSite);
                     }
                 }
@@ -68,7 +57,7 @@ public class HtmlParser extends RecursiveAction {
         }
 
         for (WebSite pageUrl : pages) {
-            HtmlParser task = new HtmlParser(components, webSiteRepository, pageRepository, pageUrl);
+            HtmlParser task = new HtmlParser(pageUrl);
             task.fork();
             tasks.add(task);
         }
@@ -80,6 +69,15 @@ public class HtmlParser extends RecursiveAction {
 
     private boolean isNotVisited(Integer id, String path) {
         return !pageRepository.existsBySiteIdAndPath(id, path);
+    }
+
+    public static void createOnePage(String content, String path, WebSite site, int code) {
+        Page page = new Page();
+        page.setContent(content);
+        page.setSite(site);
+        page.setPath(path);
+        page.setResponseCode(code);
+        IndexServiceImpl.pageRepository.save(page);
     }
 
 

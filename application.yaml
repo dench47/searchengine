@@ -29,3 +29,4 @@ indexing-settings:
 
 parser-settings:
   user-agent: Chrome/176.59.9.133
+  referrer: www.google.com

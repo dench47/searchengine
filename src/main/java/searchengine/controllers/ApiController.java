@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import searchengine.dto.indexing.IndexResponse;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.services.IndexService;
-import searchengine.services.StatisticsService;
+import searchengine.services.index.IndexService;
+import searchengine.services.statistics.StatisticsService;
 
 @RestController
 @RequestMapping("/api")
