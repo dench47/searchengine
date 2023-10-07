@@ -32,43 +32,47 @@ public class HtmlParser extends RecursiveAction {
         String url = site.getUrl();
         String path;
         String content;
-        try {
-            sleep(150);
-            Document document = Jsoup.connect(url).userAgent(userAgent).referrer(referrer).ignoreHttpErrors(true).get();
-            Elements elements = document.select("body").select("a");
-            for (Element element : elements) {
-                if (element.attr("href").startsWith("/") && !element.attr("href").endsWith("jpg")) {
-                    url = element.attr("abs:href");
-                    path = element.attr("href");
-                    IndexServiceImpl.webSiteRepository.changeStatusTime(site.getId());
-                    if (isNotVisited(site.getId(), path)) {
-                        Document document1 = Jsoup.connect(url).userAgent(userAgent).referrer(referrer).ignoreHttpErrors(true).get();
-                        content = document1.html();
-                        createOnePage(content, path, site, 200);
-                        WebSite newSite = new WebSite();
-                        newSite.setUrl(url);
-                        newSite.setId(site.getId());
-                        pages.add(newSite);
-                    }
+        Document document = connect(url, userAgent, referrer);
+        Elements elements = document.select("body").select("a");
+        for (Element element : elements) {
+            if (element.attr("href").startsWith("/") && !element.attr("href").endsWith("jpg")) {
+                url = element.attr("abs:href");
+                path = element.attr("href");
+                IndexServiceImpl.webSiteRepository.changeStatusTime(site.getId());
+                if (isNotVisited(site.getId(), path)) {
+                    content = connect(url, userAgent, referrer).html();
+                    createOnePage(content, path, site, 200);
+                    WebSite newSite = new WebSite();
+                    newSite.setUrl(url);
+                    newSite.setId(site.getId());
+                    pages.add(newSite);
                 }
             }
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
         }
 
-        for (WebSite pageUrl : pages) {
-            HtmlParser task = new HtmlParser(pageUrl);
-            task.fork();
-            tasks.add(task);
-        }
+            for (WebSite pageUrl : pages) {
+                HtmlParser task = new HtmlParser(pageUrl);
+                task.fork();
+                tasks.add(task);
+            }
 
-        for (HtmlParser task : tasks) {
-            task.join();
-        }
+            for (HtmlParser task : tasks) {
+                task.join();
+            }
+
     }
 
     private boolean isNotVisited(Integer id, String path) {
         return !pageRepository.existsBySiteIdAndPath(id, path);
+    }
+
+    public static Document connect(String url, String userAgent, String referrer) {
+        try {
+            sleep(150);
+            return Jsoup.connect(url).userAgent(userAgent).referrer(referrer).ignoreHttpErrors(true).get();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void createOnePage(String content, String path, WebSite site, int code) {

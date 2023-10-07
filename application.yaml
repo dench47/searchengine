@@ -20,12 +20,18 @@ spring:
 
 indexing-settings:
   sites:
-    - url: https://www.lenta.ru
-      name: Лента.ру
-    - url: https://www.skillbox.ru
-      name: Skillbox
-    - url: https://www.playback.ru
-      name: PlayBack.Ru
+    - url: http://localhost:8081/people
+      name: LocalHost
+    - url: http://smotret.tv
+      name: Smotret.Ru
+#    - url: https://vdopel.ru
+#      name: Все для Opel
+#    - url: https://www.lenta.ru
+#      name: Лента.ру
+#    - url: https://www.skillbox.ru
+#      name: Skillbox
+#    - url: https://www.playback.ru
+#      name: PlayBack.Ru
 
 parser-settings:
   user-agent: Chrome/176.59.9.133

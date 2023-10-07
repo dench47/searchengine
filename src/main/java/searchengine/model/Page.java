@@ -1,10 +1,11 @@
 package searchengine.model;
 
+import searchengine.services.index.IndexServiceImpl;
+
 import javax.persistence.*;
 
 @Entity
 public class Page {
-
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     int id;
