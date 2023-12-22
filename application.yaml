@@ -20,8 +20,8 @@ spring:
 
 indexing-settings:
   sites:
-    - url: http://localhost:8081/people
-      name: LocalHost
+#    - url: http://localhost:8081/people
+#      name: LocalHost
     - url: http://smotret.tv
       name: Smotret.Ru
 #    - url: https://vdopel.ru

@@ -16,6 +16,7 @@ import java.util.concurrent.RecursiveAction;
 import static java.lang.Thread.sleep;
 
 public class HtmlParser extends RecursiveAction {
+    public static Thread current = Thread.currentThread();
     private final String userAgent = IndexServiceImpl.components.getUserAgent();
     private final String referrer = IndexServiceImpl.components.getReferrer();
     private final PageRepository pageRepository = IndexServiceImpl.pageRepository;
@@ -35,7 +36,15 @@ public class HtmlParser extends RecursiveAction {
         Document document = connect(url, userAgent, referrer);
         Elements elements = document.select("body").select("a");
         for (Element element : elements) {
-            if (element.attr("href").startsWith("/") && !element.attr("href").endsWith("jpg")) {
+            System.out.println(current.getName());
+            System.out.println(Thread.currentThread().getName());
+            if (Thread.currentThread().isInterrupted()) {
+                System.out.println("interrupted");
+                break;
+            }
+            if (element.attr("href").startsWith("/") && !element.attr("href").endsWith("jpg")
+                    && !element.attr("href").endsWith("png")
+                    && !element.attr("href").contains("?") && !element.attr("href").contains("#")) {
                 url = element.attr("abs:href");
                 path = element.attr("href");
                 IndexServiceImpl.webSiteRepository.changeStatusTime(site.getId());
@@ -50,16 +59,17 @@ public class HtmlParser extends RecursiveAction {
             }
         }
 
-            for (WebSite pageUrl : pages) {
-                HtmlParser task = new HtmlParser(pageUrl);
-                task.fork();
-                tasks.add(task);
-            }
+        for (WebSite pageUrl : pages) {
 
-            for (HtmlParser task : tasks) {
-                task.join();
-            }
+//            System.out.println(Thread.currentThread().getName());
+            HtmlParser task = new HtmlParser(pageUrl);
+            task.fork();
+            tasks.add(task);
+        }
 
+        for (HtmlParser task : tasks) {
+            task.join();
+        }
     }
 
     private boolean isNotVisited(Integer id, String path) {

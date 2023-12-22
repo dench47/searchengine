@@ -14,10 +14,16 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface WebSiteRepository extends JpaRepository<WebSite, Integer> {
+
+    @Transactional
+    @Modifying
+    @Query(value = "UPDATE site SET status = 'Indexed' WHERE id = :id", nativeQuery = true)
+    void changeStatus(Integer id);
+
     @Transactional
     @Modifying
     @Query(value = "UPDATE site SET status_time = NOW() WHERE id = :id", nativeQuery = true)
-void changeStatusTime(Integer id);
+    void changeStatusTime(Integer id);
 
 
     @Transactional
